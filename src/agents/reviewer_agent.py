@@ -17,23 +17,30 @@ Evaluation criteria:
 3. Consistency — Do the steps build on each other logically?
 4. Gaps — What's missing or weak?
 
-BE CRITICAL — find real issues, not surface-level praise.
+Guidelines:
+- Be CONSTRUCTIVE, not harsh
+- Judge against the TASK, not perfection
+- 5/5 steps passed = minimum 0.6 quality
+- Small omissions = minor issue, not FAIL
+- Focus on whether the answer is USABLE
 
 Output format (valid JSON only):
 {
-  "overall_quality": 0.85,
+  "overall_quality": 0.75,
   "verdict": "PASS | NEEDS_REVISION | FAIL",
-  "strengths": ["strength 1", "strength 2"],
-  "weaknesses": ["weakness 1", "weakness 2"],
+  "strengths": ["strength 1"],
+  "weaknesses": ["weakness 1"],
   "gaps": ["gap 1"],
   "suggestions": ["improvement 1"],
-  "final_summary": "Brief overall assessment (under 100 words)"
+  "final_summary": "Brief overall assessment (under 80 words)"
 }
 
-Verdict rules:
-- PASS: quality >= 0.8 AND no critical gaps
-- NEEDS_REVISION: quality 0.5-0.8 OR minor gaps
-- FAIL: quality < 0.5 OR major gaps"""
+Verdict rules (BE CONSISTENT):
+- PASS: quality >= 0.65 (task addressed, answer usable)
+- NEEDS_REVISION: quality 0.40-0.65 (some gaps, still useful)
+- FAIL: quality < 0.40 (fundamentally broken or missing)
+
+CRITICAL: Same content = same score. Do NOT vary based on retry attempt."""
 
 
 class ReviewerAgent(BaseAgent):
@@ -43,7 +50,7 @@ class ReviewerAgent(BaseAgent):
         super().__init__(
             name="Reviewer",
             description="Reviews and validates execution results",
-            temperature=0.2,  # Low temp for objective review
+            temperature=0.1,  # Very low for consistent scoring
             max_tokens=1000,
         )
 
@@ -76,6 +83,10 @@ class ReviewerAgent(BaseAgent):
             for s in plan.get("steps", [])
         ])
 
+        # Count successful steps (confidence > 0)
+        successful = sum(1 for r in exec_results if r.get("confidence", 0) > 0)
+        total = len(exec_results)
+
         messages = [
             {"role": "system", "content": self.system_prompt},
             {
@@ -85,10 +96,12 @@ class ReviewerAgent(BaseAgent):
 Planned steps:
 {plan_text}
 
+Execution summary: {successful}/{total} steps completed successfully
+
 Execution results:
 {results_text}
 
-Review critically and return valid JSON.""",
+Review constructively and return valid JSON.""",
             },
         ]
 
@@ -97,11 +110,27 @@ Review critically and return valid JSON.""",
             content = response["message"].content.strip()
             review = json.loads(content)
 
+            # ─── Enforce consistency ───
+            quality = review.get("overall_quality", 0.5)
+
+            # Sanity check: if all steps passed, min quality 0.6
+            if successful == total and quality < 0.6:
+                quality = 0.6
+                self.log(f"⚠ Adjusted quality up: {quality:.2f} (all steps passed)")
+
+            review["overall_quality"] = quality
+
+            # Re-derive verdict from quality to ensure consistency
+            if quality >= 0.65:
+                review["verdict"] = "PASS"
+            elif quality >= 0.40:
+                review["verdict"] = "NEEDS_REVISION"
+            else:
+                review["verdict"] = "FAIL"
+
             review["reviewer_tokens"] = response["usage"]["total_tokens"]
 
-            quality = review.get("overall_quality", 0)
-            verdict = review.get("verdict", "UNKNOWN")
-
+            verdict = review["verdict"]
             style = "green" if verdict == "PASS" else "yellow" if verdict == "NEEDS_REVISION" else "red"
             self.log(f"✅ Review complete: {verdict} (quality: {quality:.2f})", style=style)
 

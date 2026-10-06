@@ -1,0 +1,18 @@
+Python Web Frameworks Overview
+
+Django (2005): A high-level, full-stack web framework that encourages rapid development
+and clean, pragmatic design. Includes ORM, admin panel, authentication, and templating
+out of the box. Best for large-scale applications requiring a batteries-included approach.
+
+Flask (2010): A lightweight WSGI web application framework. Designed to make getting
+started quick and easy, with the ability to scale up to complex applications. It's a
+micro-framework with a small core and many extensions. Ideal for microservices and APIs.
+
+FastAPI (2018): A modern, fast web framework for building APIs with Python type hints.
+Based on Starlette (ASGI) and Pydantic. Features automatic OpenAPI documentation,
+async support, and very high performance. Great for modern APIs and ML services.
+
+Performance: FastAPI > Flask > Django
+Learning curve: Flask < FastAPI < Django
+Community: Django > Flask > FastAPI (but FastAPI growing fastest)
+Ecosystem: Django > Flask ≈ FastAPI

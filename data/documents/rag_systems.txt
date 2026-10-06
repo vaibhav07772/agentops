@@ -1,0 +1,20 @@
+Retrieval-Augmented Generation (RAG)
+
+RAG combines retrieval systems with LLM generation. Key components:
+1. Document chunking — split documents into semantic chunks
+2. Embeddings — convert chunks to vectors using models like MiniLM
+3. Vector store — ChromaDB, Qdrant, Pinecone
+4. Retrieval — semantic search finds relevant chunks
+5. Reranking — Cross-Encoder reorders results for precision
+6. Generation — LLM produces answer from retrieved context
+
+Best practices:
+- Chunk size 300-800 tokens with 10-20% overlap
+- Hybrid retrieval (BM25 + semantic) improves precision
+- Cross-Encoder reranking boosts top-5 accuracy
+- Always validate citations against retrieved context
+
+Common pitfalls:
+- Chunking too large loses context
+- Pure semantic search fails on exact matches (IDs, numbers)
+- No reranking = mediocre top results

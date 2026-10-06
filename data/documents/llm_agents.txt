@@ -1,0 +1,20 @@
+LLM Multi-Agent Systems
+
+Multi-agent patterns:
+1. Planner-Executor — one agent plans, another executes
+2. Critic pattern — one agent critiques another's output
+3. Debate — multiple agents argue different views
+4. Hierarchical — supervisor delegates to workers
+
+Key considerations:
+- Each agent needs clear system prompt and role
+- State management via LangGraph
+- Tool calling enables real-world actions
+- Retry loops with feedback for quality
+- Token budgets per agent
+
+Production challenges:
+- LLM inconsistency — same input, different output
+- Token costs add up with multi-turn loops
+- Reviewers can be too harsh or too lenient
+- Best-of-N sampling helps with variance
