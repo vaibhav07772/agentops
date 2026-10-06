@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Env
+.env
+.env.local
+venv/
+env/
+.venv/
+
+# Data
+data/chroma/*
+data/mlflow/*
+data/experiments/*
+!data/chroma/.gitkeep
+!data/mlflow/.gitkeep
+!data/experiments/.gitkeep
+
+# Models
+models/*
+!models/.gitkeep
+
+# MLflow
+mlruns/
+mlflow.db
+
+# DVC
+.dvc/
+*.dvc
+
+# Logs
+logs/*.log
+!logs/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local
+hinglish_readme.md
